@@ -1,7 +1,10 @@
 #!/bin/bash
 
+logger "raspiwifi entering AP host mode"
 python3 /usr/lib/raspiwifi/reset_device/reset.py &
 
 python3 /usr/lib/raspiwifi/configuration_app/app.py &
 
-hostapd -dd /etc/hostapd/hostapd.conf &
+#systemctl start hostapd.service &
+
+#systemctl start dnsmasq.service &

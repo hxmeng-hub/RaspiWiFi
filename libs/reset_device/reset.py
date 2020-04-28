@@ -3,26 +3,29 @@ import os
 import time
 import subprocess
 import reset_lib
+import re
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-counter = 0
-serial_last_four = subprocess.check_output(['cat', '/proc/cpuinfo'])[-5:-1].decode('utf-8')
-config_hash = reset_lib.config_file_hash()
-ssid_prefix = config_hash['ssid_prefix'] + " "
-reboot_required = False
 
+if os.path.exists("/etc/raspiwifi/host_mode"):
+    serial = re.search(b'Serial\s*:\s*\w*',subprocess.check_output(['cat', '/proc/cpuinfo']))
+    serial_last_four = serial.group()[-5:-1].decode('utf-8')
+    config_hash = reset_lib.config_file_hash()
+    ssid_prefix = config_hash['ssid_prefix'] + " "
 
-reboot_required = reset_lib.wpa_check_activate(config_hash['wpa_enabled'], config_hash['wpa_key'])
+    reboot_required = reset_lib.wpa_check_activate(config_hash['wpa_enabled'], config_hash['wpa_key'])
+    reboot_required |= reset_lib.update_ssid(ssid_prefix, serial_last_four)
 
-reboot_required = reset_lib.update_ssid(ssid_prefix, serial_last_four)
-
-if reboot_required == True:
-    os.system('reboot')
+    if reboot_required == True:
+        os.system('reboot')
 
 # This is the main logic loop waiting for a button to be pressed on GPIO 18 for 10 seconds.
 # If that happens the device will reset to its AP Host mode allowing for reconfiguration on a new network.
+
+counter = 0
+
 while True:
     while GPIO.input(18) == 1:
         time.sleep(1)

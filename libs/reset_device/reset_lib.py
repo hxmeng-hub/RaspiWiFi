@@ -1,6 +1,8 @@
 import os
 import fileinput
 import subprocess
+import syslog
+import time
 
 def config_file_hash():
 	config_file = open('/etc/raspiwifi/raspiwifi.conf')
@@ -32,7 +34,8 @@ def wpa_check_activate(wpa_enabled, wpa_key):
 				if 'wpa_passphrase' in line:
 					if 'wpa_passphrase=' + wpa_key not in line:
 						print('wpa_passphrase=' + wpa_key)
-						os.system('reboot')
+						reboot_required = True
+						break
 					else:
 						print(line, end = '')
 				else:
@@ -78,16 +81,18 @@ def is_wifi_active():
 
 def reset_to_host_mode():
 	if not os.path.isfile('/etc/raspiwifi/host_mode'):
-		os.system('aplay /usr/lib/raspiwifi/reset_device/button_chime.wav')
+		#os.system('aplay /usr/lib/raspiwifi/reset_device/button_chime.wav')
 		os.system('rm -f /etc/wpa_supplicant/wpa_supplicant.conf')
-		os.system('rm -f /home/pi/Projects/RaspiWifi/tmp/*')
-		os.system('rm /etc/cron.raspiwifi/apclient_bootstrapper')
+		os.system('rm -f /etc/cron.raspiwifi/apclient_bootstrapper')
 		os.system('cp /usr/lib/raspiwifi/reset_device/static_files/aphost_bootstrapper /etc/cron.raspiwifi/')
 		os.system('chmod +x /etc/cron.raspiwifi/aphost_bootstrapper')
 		os.system('mv /etc/dhcpcd.conf /etc/dhcpcd.conf.original')
 		os.system('cp /usr/lib/raspiwifi/reset_device/static_files/dhcpcd.conf /etc/')
 		os.system('mv /etc/dnsmasq.conf /etc/dnsmasq.conf.original')
 		os.system('cp /usr/lib/raspiwifi/reset_device/static_files/dnsmasq.conf /etc/')
-		os.system('cp /usr/lib/raspiwifi/reset_device/static_files/dhcpcd.conf /etc/')
+		# /etc/hostapd/hostapd.conf no need to reset
 		os.system('touch /etc/raspiwifi/host_mode')
+		syslog.syslog('raspiwifi - reset_to_host_mode')
+		time.sleep(2)
+		
 	os.system('reboot')
