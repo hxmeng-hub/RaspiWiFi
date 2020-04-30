@@ -68,12 +68,12 @@ CONFIGURATION:
       Configuration Mode (Host Mode). This is only applicable if the
       "Auto-Config mode" mentioned above is set to active.
 
-==== "Server port" [default: 80]: This is the server port that the web server
+==== "Server port" [default: 12345]: This is the server port that the web server
       hosting the Configuration App page will be listening on. If you change
       this port make sure to add it to the end of the address when you're
-      connecting to it. For example, if you speficiy 12345 as the port number
-      you would navigate to the page like this: http://10.0.0.1:12345 If you
-      leave the port at the default setting [80] there is no need to specify the
+      connecting to it. For example, if you speficiy 9999 as the port number
+      you would navigate to the page like this: http://10.0.0.1:9999 If you
+      leave the port at the default setting [12345] there is no need to specify the
       port when navigating to the page.
 
 ==== "SSL Mode" [default: n]: With this option enabled your RaspiWifi
